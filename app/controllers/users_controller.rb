@@ -1,16 +1,16 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
-
+  before_action :set_user, only: [:show, :edit, :update]
+  before_action :require_same_user, only: [:edit, :update]
   # GET /users
   # GET /users.json
   def index
-    @users = User.all
+    @users = User.paginate(page: params[:page], per_page: 5)
   end
 
   # GET /users/1
   # GET /users/1.json
   def show
-    @user = User.find(params[:id])
+  
     
   end
 
@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
-    @user = User.find(params[:id])
+    
   end
 
   # POST /users
@@ -41,7 +41,7 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1
   # PATCH/PUT /users/1.json
   def update
-    @user = User.find(params[:id])
+    
     if @user.update(user_params)
       flash[:success] = "Your account was updated successfully"
       redirect_to articles_path
@@ -69,4 +69,13 @@ end
     def user_params
       params.require(:user).permit(:username, :email, :password)
     end
+    def set_user
+      @user = User.find(params[:id])
+    end
+    def require_same_user
+    if current_user != @user
+      flash[:danger] = " You can only edit own account"
+      redirect_to root_path
+    end
+  end
 end
